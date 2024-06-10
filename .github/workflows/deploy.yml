@@ -19,7 +19,7 @@ jobs:
         go-version: '1.20'
 
     - name: Build Go function
-      run: go build -o main ./sendTransactionalEmail
+      run: go build -o main sendTransactionalEmail
 
     - name: Login to DigitalOcean
       uses: digitalocean/action-doctl@v2
