@@ -1,0 +1,14 @@
+parameters: {}
+environment: 
+  RESEND_API_KEY: ${RESEND_API_KEY}
+  EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+packages:
+  - name: sample
+    environment: {}
+    parameters: {}
+    actions:
+      - name: email
+        main: ''
+        runtime: 'go:1.20'
+        environment: {}
+        parameters: {}

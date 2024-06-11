@@ -1,13 +1,14 @@
-name: functions
-services:
-  - name: send-email-function
-    git:
-      repo_clone_url: https://github.com/codepumper/functions.git
+spec:
+  alerts:
+  - rules: DEPLOYMENT_FAILED
+  - rules: DOMAIN_FAILED
+  functions:
+  - github:
       branch: main
       deploy_on_push: true
-    environment_slug: go
-    routes:
-      - path: ./email
-        handler: ./main
-        type: http
-
+      repo: codepumper/functions
+    name: email
+     routes:
+    - path: /email
+    source_dir: /
+  name: url
