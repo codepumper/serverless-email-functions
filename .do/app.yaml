@@ -8,8 +8,8 @@ functions:
     deploy_on_push: true
     repo: codepumper/functions
   routes:
-  - path: /functions/sendEmail
+  - path: /functions/default/sendEmail
     function: sendEmail
-  - path: /functions/addContact
+  - path: /functions/default/addContact
     function: addContact
   
