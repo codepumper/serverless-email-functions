@@ -4,10 +4,10 @@ environment:
 packages:
   - name: functions
     functions:
-      - name: send-email
-        runtime: 'go:1.20'
-        environment:
-          TO_EMAIL_ADDRESS: ${TO_EMAIL_ADDRESS}
+      # - name: send-email
+      #   runtime: 'go:1.20'
+      #   environment:
+      #     TO_EMAIL_ADDRESS: ${TO_EMAIL_ADDRESS}
       - name: add-contact
         runtime: 'go:1.20'
         environment:

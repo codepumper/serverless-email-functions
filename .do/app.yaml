@@ -9,15 +9,6 @@ functions:
     deploy_on_push: true
     repo: codepumper/functions
   routes:
-  - path: /add-contact
+  - path: /
     function: add-contact
-
-- name: send-email
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: codepumper/functions
-  routes:
-  - path: /send-email
-    function: send-email
   
