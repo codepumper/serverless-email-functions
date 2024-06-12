@@ -9,6 +9,7 @@ packages:
     actions:
       - name: email
         main: ''
+        web: true
         runtime: 'go:1.20'
         environment: {}
         parameters: {}
