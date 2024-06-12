@@ -1,13 +1,14 @@
 alerts:
 - rules: DEPLOYMENT_FAILED
 - rules: DOMAIN_FAILED
+
 functions:
 - github:
     branch: main
     deploy_on_push: true
     repo: codepumper/functions
-  name: contact
   routes:
-  - path: /
+    - path: /api
+  name: functions
   source_dir: /
-name: contact
+name: functions
