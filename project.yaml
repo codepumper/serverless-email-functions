@@ -1,15 +1,14 @@
-parameters: {}
 environment: 
   RESEND_API_KEY: ${RESEND_API_KEY}
-  EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+  
 packages:
-  - name: sample
-    environment: {}
-    parameters: {}
-    actions:
-      - name: email
-        main: ''
-        web: true
+  - name: functions
+    functions:
+      - name: sendEmail
         runtime: 'go:1.20'
-        environment: {}
-        parameters: {}
+        environment:
+          TO_EMAIL_ADDRESS: ${TO_EMAIL_ADDRESS}
+      - name: addAudience
+        runtime: 'go:1.20'
+        environment:
+          AUDIENCE_ID: ${AUDIENCE_ID}

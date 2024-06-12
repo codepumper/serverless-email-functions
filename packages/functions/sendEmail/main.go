@@ -26,7 +26,7 @@ type Response struct {
 }
 
 func Main(ctx context.Context, event Event) (*Response, error) {
-	if event.Method == "POST" {
+	if event.Method != "POST" {
 		return nil, fmt.Errorf("Invalid request method")
 	}
 
