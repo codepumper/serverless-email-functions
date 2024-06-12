@@ -11,8 +11,8 @@ import (
 )
 
 type Event struct {
-	Name   string `json:"name"`
-	Method string `json:"method"`
+	Name string `json:"name"`
+	// Method string `json:"method"`
 }
 
 type Request struct {
@@ -26,9 +26,9 @@ type Response struct {
 }
 
 func Main(ctx context.Context, event Event) (*Response, error) {
-	if event.Method != "POST" {
-		return nil, fmt.Errorf("Invalid request method")
-	}
+	// if event.Method != "POST" {
+	// 	return nil, fmt.Errorf("Invalid request method")
+	// }
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
