@@ -10,4 +10,4 @@ spec:
       deploy_on_push: true
       repo: codepumper/functions
     routes:
-    - path: /add-contact
+    - path: /
