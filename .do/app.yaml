@@ -9,7 +9,7 @@ functions:
     deploy_on_push: true
     repo: codepumper/functions
   routes:
-  - path: functions/default/add-contact
+  - path: /add-contact
     function: add-contact
 
 - name: send-email
@@ -18,6 +18,6 @@ functions:
     deploy_on_push: true
     repo: codepumper/functions
   routes:
-  - path: functions/default/send-email
+  - path: /send-email
     function: send-email
   
