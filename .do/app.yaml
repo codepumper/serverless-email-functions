@@ -9,5 +9,7 @@ functions:
     repo: codepumper/functions
   routes:
   - path: /default/functions/sendEmail
+    function: sendEmail
   - path: /default/functions/addContact
+    function: addContact
   
