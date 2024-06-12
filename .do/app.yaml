@@ -11,4 +11,11 @@ functions:
     - path: /api
   name: functions
   source_dir: /
+  envs:
+  - key: AUDIENCE_ID
+    scope: RUN_TIME
+  - key: TO_EMAIL_ADDRESS
+    scope: RUN_TIME
+  - key: RESEND_API_KEY
+    scope: RUN_TIME
 name: functions
