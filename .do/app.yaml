@@ -1,0 +1,13 @@
+alerts:
+- rules: DEPLOYMENT_FAILED
+- rules: DOMAIN_FAILED
+functions:
+- name: functions
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: codepumper/functions
+  routes:
+  - path: /default/functions/sendEmail
+  - path: /default/functions/addContact
+  
