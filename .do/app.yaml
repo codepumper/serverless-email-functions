@@ -1,14 +1,13 @@
-spec:
-  alerts:
-  - rules: DEPLOYMENT_FAILED
-  - rules: DOMAIN_FAILED
-  functions:
-
-  - name: add-contact
-    github:
-      branch: main
-      deploy_on_push: true
-      repo: codepumper/functions
-    routes:
-    - path: /add-contact
-    source_dir: /
+alerts:
+- rules: DEPLOYMENT_FAILED
+- rules: DOMAIN_FAILED
+functions:
+- github:
+    branch: main
+    deploy_on_push: true
+    repo: codepumper/functions
+  name: contact
+  routes:
+  - path: /
+  source_dir: /
+name: contact
