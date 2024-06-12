@@ -8,7 +8,7 @@ packages:
         runtime: 'go:1.20'
         environment:
           TO_EMAIL_ADDRESS: ${TO_EMAIL_ADDRESS}
-      - name: addAudience
+      - name: addContact
         runtime: 'go:1.20'
         environment:
           AUDIENCE_ID: ${AUDIENCE_ID}
