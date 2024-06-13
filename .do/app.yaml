@@ -8,8 +8,8 @@ functions:
     deploy_on_push: true
     repo: codepumper/functions
   routes:
-    - path: /
-  name: api
+    - path: /functions
+  name: functions
   source_dir: /
   envs:
   - key: AUDIENCE_ID
@@ -18,4 +18,4 @@ functions:
     scope: RUN_TIME
   - key: RESEND_API_KEY
     scope: RUN_TIME
-name: api
+name: functions

@@ -36,10 +36,10 @@ func Main(ctx context.Context, event Event) (*Response, error) {
 		return nil, fmt.Errorf("RESEND_API_KEY environment variable is not set")
 	}
 
-	emailAddress := os.Getenv("EMAIL_ADDRESS")
+	emailAddress := os.Getenv("TO_EMAIL_ADDRESS")
 	if emailAddress == "" {
-		fmt.Println("EMAIL_ADDRESS environment variable is not set")
-		return nil, fmt.Errorf("EMAIL_ADDRESS environment variable is not set")
+		fmt.Println("TO_EMAIL_ADDRESS environment variable is not set")
+		return nil, fmt.Errorf("TO_EMAIL_ADDRESS environment variable is not set")
 	}
 
 	client := resend.NewClient(apiKey)
