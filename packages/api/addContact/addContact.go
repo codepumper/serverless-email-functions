@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"time"
 
 	"github.com/resend/resend-go/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 type Event struct {
@@ -22,17 +25,30 @@ type Response struct {
 	Body       string            `json:"body,omitempty"`
 }
 
+func (e *Event) Validate() error {
+	if e.Email == "" {
+		return errors.New("email cannot be empty")
+	}
+	return nil
+}
+
 func Main(ctx context.Context, event Event) (*Response, error) {
+	err := event.Validate()
+	if err != nil {
+		log.WithError(err).Error("Invalid event data")
+		return nil, err
+	}
+
 	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
-		fmt.Println("RESEND_API_KEY environment variable is not set")
-		return nil, fmt.Errorf("RESEND_API_KEY environment variable is not set")
+		log.Error("RESEND_API_KEY environment variable is not set")
+		return nil, errors.New("RESEND_API_KEY environment variable is not set")
 	}
 
 	audienceId := os.Getenv("AUDIENCE_ID")
 	if audienceId == "" {
-		fmt.Println("AUDIENCE_ID environment variable is not set")
-		return nil, fmt.Errorf("AUDIENCE_ID environment variable is not set")
+		log.Error("AUDIENCE_ID environment variable is not set")
+		return nil, errors.New("AUDIENCE_ID environment variable is not set")
 	}
 
 	client := resend.NewClient(apiKey)
@@ -48,32 +64,34 @@ func Main(ctx context.Context, event Event) (*Response, error) {
 	maxRetries := 5
 	added, err := addContactWithRetry(client, params, maxRetries)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.WithError(err).Error("Failed to add contact")
 		return nil, err
 	}
 
-	fmt.Println("Contact added successfully, ID:", added.Id)
+	log.WithField("ID", added.Id).Info("Contact added successfully")
 
 	return &Response{
-		Body: fmt.Sprintf("Hello from your add contact function!"),
+		Body: "Hello from your add contact function!",
 	}, nil
 }
 
 func addContactWithRetry(client *resend.Client, params *resend.CreateContactRequest, maxRetries int) (*resend.CreateContactResponse, error) {
+	var added resend.CreateContactResponse
 	var err error
 
 	for i := 0; i < maxRetries; i++ {
-		contact, err := client.Contacts.Create(params)
+		added, err = client.Contacts.Create(params)
 		if err == nil {
-			return &contact, nil
+			return &added, nil
 		}
 
-		// Print the error
-		fmt.Println("Attempt", i+1, "failed:", err.Error())
+		log.WithFields(log.Fields{
+			"attempt": i + 1,
+			"error":   err,
+		}).Error("Failed to add contact")
 
-		// Exponential backoff delay
-		delay := time.Duration(math.Pow(2, float64(i))) * time.Second
-		fmt.Printf("Retrying in %v seconds...\n", delay.Seconds())
+		delay := time.Duration(math.Pow(2, float64(i))+float64(rand.Intn(1000))) * time.Millisecond
+		log.WithField("delay", delay).Info("Retrying add contact")
 		time.Sleep(delay)
 	}
 

@@ -2,67 +2,110 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"html/template"
 	"math"
+	"math/rand"
+	"net/mail"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/resend/resend-go/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 type Event struct {
-	Name string `json:"name"`
-	// Method string `json:"method"`
-}
-
-type Request struct {
-	Name string `json:"name"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Message   string `json:"message"`
 }
 
 type Response struct {
-	StatusCode int               `json:"statusCode,omitempty"`
-	Headers    map[string]string `json:"headers,omitempty"`
-	Body       string            `json:"body,omitempty"`
+	StatusCode int    `json:"statusCode"`
+	Body       string `json:"body"`
 }
 
-func Main(ctx context.Context, event Event) (*Response, error) {
-	// if event.Method != "POST" {
-	// 	return nil, fmt.Errorf("Invalid request method")
-	// }
+func (e *Event) Validate() error {
+	if strings.TrimSpace(e.Email) == "" {
+		return errors.New("email cannot be empty")
+	}
 
-	apiKey := os.Getenv("RESEND_API_KEY")
+	_, err := mail.ParseAddress(e.Email)
+	if err != nil {
+		return errors.New("email is not valid")
+	}
+
+	return nil
+}
+
+func Main(ctx context.Context, event Event) *Response {
+	err := event.Validate()
+	if err != nil {
+		log.WithError(err).Error("Invalid event data")
+		return &Response{
+			StatusCode: 400,
+			Body:       fmt.Sprintf("%v", err),
+		}
+	}
+
+	apiKey := os.Getenv("RESEND_API")
 	if apiKey == "" {
-		fmt.Println("RESEND_API_KEY environment variable is not set")
-		return nil, fmt.Errorf("RESEND_API_KEY environment variable is not set")
+		log.Error("RESEND_API_KEY environment variable is not set")
+		return &Response{
+			StatusCode: 500,
+			Body:       "RESEND_API_KEY environment variable is not set",
+		}
 	}
 
 	emailAddress := os.Getenv("TO_EMAIL_ADDRESS")
 	if emailAddress == "" {
-		fmt.Println("TO_EMAIL_ADDRESS environment variable is not set")
-		return nil, fmt.Errorf("TO_EMAIL_ADDRESS environment variable is not set")
+		log.Error("TO_EMAIL_ADDRESS environment variable is not set")
+		return &Response{
+			StatusCode: 500,
+			Body:       "TO_EMAIL_ADDRESS environment variable is not set",
+		}
 	}
 
 	client := resend.NewClient(apiKey)
 
+	tmpl := template.Must(template.New("email").Parse(`
+        <strong>Name:</strong> {{.FirstName}} {{.LastName}}<br>
+        <strong>Email:</strong> {{.Email}}<br>
+        <strong>Message:</strong> {{.Message}}
+    `))
+	var htmlContent strings.Builder
+	if err := tmpl.Execute(&htmlContent, event); err != nil {
+		log.WithError(err).Error("Failed to construct HTML content")
+		return &Response{
+			StatusCode: 500,
+			Body:       "Failed to construct HTML content",
+		}
+	}
+
 	params := &resend.SendEmailRequest{
 		From:    "Acme <onboarding@resend.dev>",
 		To:      []string{emailAddress},
-		Html:    "<strong>hello world</strong>",
-		Subject: "Hello from Golang",
+		Html:    htmlContent.String(),
+		Subject: "Contact Form Submission",
 	}
 
 	maxRetries := 5
-	sent, err := sendEmailWithRetry(client, params, maxRetries)
+	_, err = sendEmailWithRetry(client, params, maxRetries)
 	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
+		log.WithError(err).Error("Failed to send email")
+		return &Response{
+			StatusCode: 500,
+			Body:       "Failed to send email",
+		}
 	}
 
-	fmt.Println("Email sent successfully, ID:", sent.Id)
-
 	return &Response{
-		Body: fmt.Sprintf("Hello from your email function!"),
-	}, nil
+		StatusCode: 200,
+		Body:       "Email sent successfully",
+	}
 }
 
 func sendEmailWithRetry(client *resend.Client, params *resend.SendEmailRequest, maxRetries int) (*resend.SendEmailResponse, error) {
@@ -75,12 +118,13 @@ func sendEmailWithRetry(client *resend.Client, params *resend.SendEmailRequest, 
 			return sent, nil
 		}
 
-		// Print the error
-		fmt.Println("Attempt", i+1, "failed:", err.Error())
+		log.WithFields(log.Fields{
+			"attempt": i + 1,
+			"error":   err,
+		}).Error("Failed to send email")
 
-		// Exponential backoff delay
-		delay := time.Duration(math.Pow(2, float64(i))) * time.Second
-		fmt.Printf("Retrying in %v seconds...\n", delay.Seconds())
+		delay := time.Duration(math.Pow(2, float64(i))+float64(rand.Intn(1000))) * time.Millisecond
+		log.WithField("delay", delay).Info("Retrying send email")
 		time.Sleep(delay)
 	}
 

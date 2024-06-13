@@ -5,12 +5,12 @@
     "packageVersions": {},
     "actionVersions": {
       "api/addContact": {
-        "digest": "ef263fceafc6dd1a34068c5c9b68cfb293ad245f9c3429f7437809886b90a90c",
-        "version": "0.0.1"
+        "digest": "259739362c7398d5c1eb7cd7e307a4181605a64848a9a76fb84c3a74e77c73f1",
+        "version": "0.0.3"
       },
       "api/sendEmail": {
-        "digest": "09b4622d605f58245789ed8290931cc2e6920552322684da66cb13938cb5a91b",
-        "version": "0.0.1"
+        "digest": "036edb2293d672cc57b91eedc1d5aa69c33e4e7d036dc53433f610d43c55589b",
+        "version": "0.0.3"
       }
     }
   }

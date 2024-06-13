@@ -4,7 +4,7 @@ environment:
   AUDIENCE_ID: ${AUDIENCE_ID}
   
 packages:
-  - name: functions
+  - name: api
     functions:
       - name: sendEmail
         runtime: 'go:1.20'
