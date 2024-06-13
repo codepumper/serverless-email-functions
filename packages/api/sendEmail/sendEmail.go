@@ -41,32 +41,23 @@ func (e *Event) Validate() error {
 	return nil
 }
 
-func Main(ctx context.Context, event Event) *Response {
+func Main(ctx context.Context, event Event) (*Response, error) {
 	err := event.Validate()
 	if err != nil {
 		log.WithError(err).Error("Invalid event data")
-		return &Response{
-			StatusCode: 400,
-			Body:       fmt.Sprintf("%v", err),
-		}
+		return nil, err
 	}
 
-	apiKey := os.Getenv("RESEND_API")
+	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
 		log.Error("RESEND_API_KEY environment variable is not set")
-		return &Response{
-			StatusCode: 500,
-			Body:       "RESEND_API_KEY environment variable is not set",
-		}
+		return nil, errors.New("RESEND_API_KEY environment variable is not set")
 	}
 
 	emailAddress := os.Getenv("TO_EMAIL_ADDRESS")
 	if emailAddress == "" {
 		log.Error("TO_EMAIL_ADDRESS environment variable is not set")
-		return &Response{
-			StatusCode: 500,
-			Body:       "TO_EMAIL_ADDRESS environment variable is not set",
-		}
+		return nil, errors.New("TO_EMAIL_ADDRESS environment variable is not set")
 	}
 
 	client := resend.NewClient(apiKey)
@@ -79,10 +70,7 @@ func Main(ctx context.Context, event Event) *Response {
 	var htmlContent strings.Builder
 	if err := tmpl.Execute(&htmlContent, event); err != nil {
 		log.WithError(err).Error("Failed to construct HTML content")
-		return &Response{
-			StatusCode: 500,
-			Body:       "Failed to construct HTML content",
-		}
+		return nil, err
 	}
 
 	params := &resend.SendEmailRequest{
@@ -96,16 +84,13 @@ func Main(ctx context.Context, event Event) *Response {
 	_, err = sendEmailWithRetry(client, params, maxRetries)
 	if err != nil {
 		log.WithError(err).Error("Failed to send email")
-		return &Response{
-			StatusCode: 500,
-			Body:       "Failed to send email",
-		}
+		return nil, err
 	}
 
 	return &Response{
 		StatusCode: 200,
 		Body:       "Email sent successfully",
-	}
+	}, nil
 }
 
 func sendEmailWithRetry(client *resend.Client, params *resend.SendEmailRequest, maxRetries int) (*resend.SendEmailResponse, error) {

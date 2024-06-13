@@ -71,7 +71,8 @@ func Main(ctx context.Context, event Event) (*Response, error) {
 	log.WithField("ID", added.Id).Info("Contact added successfully")
 
 	return &Response{
-		Body: "Hello from your add contact function!",
+		StatusCode: 200,
+		Body:       "New contact was created",
 	}, nil
 }
 
